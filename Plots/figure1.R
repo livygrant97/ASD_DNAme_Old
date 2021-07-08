@@ -264,16 +264,18 @@ all_Autosomes_Cleaned<-all_Autosomes_Cleaned[!(all_Autosomes_Cleaned$Row.names
 #get the top hits so we can add labels to the plot
 topHits<-rbind(sigProbesFemales[1:8,],sigProbesMales[1:8,])
 
+#set up colour palettes
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 maleColour<-cbbPalette[7]
 femaleColour<-cbbPalette[6]
 
+#set up colour system 
 sigCpG_Autosomes_Cleaned$Colour<-"#999999"
 sigCpG_Autosomes_Cleaned$Colour[sigCpG_Autosomes_Cleaned$Row.names %in% sigProbesFemales$Row.names] <- femaleColour
 sigCpG_Autosomes_Cleaned$Colour[sigCpG_Autosomes_Cleaned$Row.names %in% sigProbesMales$Row.names] <- maleColour
 
-
+#plot volcano function
 dmpVolcano <- function(sigCpG_Autosomes_Cleaned,deltaBetaLimit,tLimit){
 
             fold.range <- c(-0.32,0.32)
@@ -360,6 +362,7 @@ dev.off()
 ####  Generate Figure 1E ####
 ###############################################################
 
+#create a data frame containing feature anno for each cpg
 df<-data.frame("CG"=as.character(rownames(annotationTable)),"Feature"="other")
 df$CG<-as.character(df$CG)
 df$Feature<-as.character(df$Feature)
@@ -375,10 +378,12 @@ df$Feature[df$CG %in% cginenhancerMon$cg] <- "Enhancers"
 df$Feature[df$CG %in% cginpromoter$cg] <- "Promoters"
 df$Feature[df$CG %in% cginte$cg] <- "TE's"
 
+# add grouping
 df$Group<- "Background"
 df$Group[df$CG %in% sigProbesMales$Row.names] <- "males"
 df$Group[df$CG %in% sigProbesFemales$Row.names] <- "females"
 
+#make results matrix
 results_matrix <- matrix(0, 4, 8)
 colnames(results_matrix) <- c("Other", "Exons", "Introns", "5' UTR", "3' UTR", "Enhancers", "Promoters","TE")
 rownames(results_matrix) <- c("All Autosomes", "all saDMPs", "Hypermethylated in females", "Hypermethylated in males")
@@ -432,9 +437,6 @@ results_matrix_aves[,2] <- results_matrix[,2]/sum(results_matrix[,2])
 results_matrix_aves[,3] <- results_matrix[,3]/sum(results_matrix[,3])
 results_matrix_aves[,4] <- results_matrix[,4]/sum(results_matrix[,4])
 
-
-
-end_point = 0.5 + ncol(results_matrix_aves)+ ncol(results_matrix_aves)- 1 #this is the line which does the trick (together with barplot "space = 1" parameter)
 
 pdf("/home/og16379/diff_cpg_fm/pdf/stackedBarplot.pdf")
 par(mar=c(4,4,4,10.5))
