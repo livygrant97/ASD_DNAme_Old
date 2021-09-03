@@ -1,0 +1,53 @@
+input_dir="/storage/projects/ZabetLab/livAnalysis/juicerFiles/fastq"
+output_dir="/storage/projects/ZabetLab/livAnalysis/mapped/"
+
+bwa_index="/storage/projects/ReferenceGenomes/BWAIndexes/hg38.fa"
+
+input_rep1run1="$input_dir/SRR8435324_R1.fastq"
+input_rep1run2="$input_dir/SRR8435324_R2.fastq"
+input_rep1run1="$input_dir/SRR8435322_R1.fastq"
+input_rep1run2="$input_dir/SRR8435322_R2.fastq"
+input_rep1run1="$input_dir/SRR8435323_R1.fastq"
+input_rep1run2="$input_dir/SRR8435323_R2.fastq"
+
+output_rep1run1="$output_dir/SRR8435324_R1.sam"
+output_rep1run2="$output_dir/SRR8435324_R2.sam"
+output_rep2run1="$output_dir/SRR8435322_R1.sam"
+output_rep2run2="$output_dir/SRR8435322_R2.sam"
+output_rep3run1="$output_dir/SRR8435323_R1.sam"
+output_rep3run2="$output_dir/SRR8435323_R2.sam"
+
+
+bwa mem -t 20 -A 1 -B 4 -E 50 -L 0 $bwa_index $input_rep1run1 | samtools view -Shb - > $output_rep1run1
+bwa mem -t 20 -A 1 -B 4 -E 50 -L 0 $bwa_index $input_rep1run2 | samtools view -Shb - > $output_rep1run2
+bwa mem -t 20 -A 1 -B 4 -E 50 -L 0 $bwa_index $input_rep2run1 | samtools view -Shb - > $output_rep2run1
+bwa mem -t 20 -A 1 -B 4 -E 50 -L 0 $bwa_index $input_rep2run2 | samtools view -Shb - > $output_rep2run2
+bwa mem -t 20 -A 1 -B 4 -E 50 -L 0 $bwa_index $input_rep3run1 | samtools view -Shb - > $output_rep3run1
+bwa mem -t 20 -A 1 -B 4 -E 50 -L 0 $bwa_index $input_rep3run2 | samtools view -Shb - > $output_rep3run2
+
+###############################################################################
+
+# for Arima kit
+cd ~/genome/
+bwa index hg38.fa
+python /usr/local/juicer/misc/generate_site_positions.py DpnII hg38 hg38.fa
+awk 'BEGIN{OFS="\t"}{print $1, $NF}'  hg38_DpnII.txt > hg38.chrom.sizes
+awk 'BEGIN{OFS="\t"}{print $1, $NF}'  hg38_DpnII.txt
+gawk 'BEGIN{OFS="\t"}{print $1, $NF}'  hg38_DpnII.txt
+less hg38.chrom.sizes
+
+
+###############################################################################
+
+#call preprocessing pipeline
+/home/og16379/juicer_dir/juicer/CPU/juicer.sh -t 30 -z ~/juicer_dir/juicer/genome/hg38.fa \
+-p ~/juicer_dir/juicer/genome/hg38.chrom.sizes -y ~/juicer_dir/juicer/genome/hg38_DpnII.txt \
+-d /storage/projects/ZabetLab/livAnalysis/juicerFiles/
+
+
+#generate the hic files
+java -Xmx10g -jar ~/juicer_dir/juicer/scripts/common/juicer_tools.jar pre -q 30 -r 500,1000,2000,5000,10000,20000,25000,50000,100000,200000,500000,1000000
+/storage/projects/ZabetLab/livAnalysis/juicerFiles/aligned/merged_nodups.txt
+/storage/projects/ZabetLab/livAnalysis/juicerFiles/livHiC.hic
+~/juicer_dir/juicer/genome/hg38.chrom.sizes
+
