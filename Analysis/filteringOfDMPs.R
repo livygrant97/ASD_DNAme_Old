@@ -16,7 +16,7 @@ lapply(packages, library, character.only = TRUE)
 if(file.exists("/path/to/file/dasenAutosomeCleaned.Rata")){
   load("/path/to/file/dasenAutosomeCleaned.Rata")
 } else{
-diffMF<-read.csv("/path/to/file/diff_cpg_between_F_M.xls)
+diffMF<-read.csv("/path/to/file/diff_cpg_between_F_M.xls")
 #performing FDR test
 diffMF$FDR<-p.adjust(diffMF$P.Value,method="fdr")
 #subset those probes which FDR <0.05
